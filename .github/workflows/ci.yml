@@ -6,7 +6,7 @@ on:
       - main
       - master
     tags:
-      - 'v*'
+      - "v*"
   pull_request:
     branches:
       - main
@@ -16,7 +16,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,4 +36,3 @@ jobs:
 
       - name: Run linter
         run: deno lint
-

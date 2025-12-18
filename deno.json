@@ -9,7 +9,7 @@
   },
   "fmt": {
     "include": ["*.ts", "tests/**/*.ts", "*.yml", "*.md"],
-    "exclude": ["tests/document/**"]
+    "exclude": ["tests/document/**", ".github/**"]
   },
   "lint": {
     "include": ["*.ts", "tests/**/*.ts"]
