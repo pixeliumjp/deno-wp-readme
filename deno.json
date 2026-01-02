@@ -1,7 +1,21 @@
 {
+  "name": "@pixelium/wp-readme",
+  "version": "2.0.0",
+  "exports": "./wp-readme.ts",
+  "publish": {
+    "include": [
+      "wp-readme.ts",
+      "README.md",
+      "LICENSE"
+    ],
+    "exclude": [
+      "tests/**",
+      ".github/**"
+    ]
+  },
   "imports": {
-    "@std/assert": "jsr:@std/assert",
-    "@std/path": "jsr:@std/path"
+    "@std/assert": "jsr:@std/assert@^1.0.0",
+    "@std/path": "jsr:@std/path@^1.0.0"
   },
   "tasks": {
     "test": "deno test --allow-read --allow-write --allow-env tests/wp_readme_test.ts",

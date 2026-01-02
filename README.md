@@ -48,6 +48,82 @@ wp-readme
 deno run --allow-read --allow-write --allow-env https://raw.githubusercontent.com/sato-jp/deno-wp-readme/master/wp-readme.ts
 ```
 
+### Import as a module
+
+他のDenoプロジェクトでこのモジュールをインポートして使用できます：
+
+#### 方法1: deno add で追加（推奨）
+
+JSR（JavaScript Registry）に公開されている場合、`deno add`コマンドで簡単に追加できます：
+
+```bash
+deno add jsr:@pixelium/wp-readme
+```
+
+これにより、プロジェクトの`deno.json`に自動的にインポートが追加され、コード内で使用できます：
+
+```typescript
+import {
+  wpReadmeFind,
+  wpReadmeReplace,
+  wpReadmeConvertString,
+  wpReadmeVisibility,
+} from "jsr:@pixelium/wp-readme";
+
+// 使用例
+const readmePath = await wpReadmeFind(".");
+if (readmePath) {
+  await wpReadmeReplace(readmePath);
+}
+```
+
+#### 方法2: 直接URLでインポート
+
+```typescript
+import {
+  wpReadmeFind,
+  wpReadmeReplace,
+  wpReadmeConvertString,
+  wpReadmeVisibility,
+} from "https://raw.githubusercontent.com/sato-jp/deno-wp-readme/master/wp-readme.ts";
+
+// 使用例
+const readmePath = await wpReadmeFind(".");
+if (readmePath) {
+  await wpReadmeReplace(readmePath);
+}
+```
+
+#### 方法3: deno.jsonでインポートマップを設定
+
+プロジェクトの`deno.json`に以下を追加：
+
+```json
+{
+  "imports": {
+    "@wp-readme": "https://raw.githubusercontent.com/sato-jp/deno-wp-readme/master/wp-readme.ts"
+  }
+}
+```
+
+その後、コード内で：
+
+```typescript
+import {
+  wpReadmeFind,
+  wpReadmeReplace,
+} from "@wp-readme";
+```
+
+#### 方法4: 特定のバージョン/タグを指定
+
+```typescript
+import {
+  wpReadmeFind,
+  wpReadmeReplace,
+} from "https://raw.githubusercontent.com/sato-jp/deno-wp-readme/v2.0.0/wp-readme.ts";
+```
+
 ### GitHub Actions
 
 You can use this in GitHub Actions workflows:
@@ -113,6 +189,42 @@ variable:
 ```bash
 export WP_README_DIR=/path/to/your/plugin
 deno run --allow-read --allow-write --allow-env wp-readme.ts
+```
+
+## Publishing to JSR
+
+このパッケージをJSR（JavaScript Registry）に公開することで、`deno add`コマンドで簡単に追加できるようになります。
+
+### 公開手順
+
+1. **JSRアカウントを作成**
+   - https://jsr.io にアクセス
+   - GitHubアカウントでログイン
+
+2. **スコープの作成**
+   - JSRでスコープ（この場合は`@pixelium`）を作成
+   - GitHub組織またはユーザー名と紐付け
+
+3. **公開前の確認**
+   ```bash
+   # 公開前のチェック（ドライラン）
+   deno publish --dry-run
+   ```
+
+4. **公開**
+   ```bash
+   # 実際にJSRに公開
+   deno publish
+   ```
+
+5. **バージョン管理**
+   - `deno.json`の`version`フィールドを更新してから公開
+   - タグを付けてリリースすることを推奨
+
+公開後、他のプロジェクトで以下のコマンドで追加できます：
+
+```bash
+deno add jsr:@pixelium/wp-readme
 ```
 
 ## Testing
