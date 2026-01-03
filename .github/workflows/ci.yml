@@ -16,6 +16,9 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout code
@@ -38,4 +41,5 @@ jobs:
         run: deno task lint
 
       - name: Publish JSR
-        run: deno task publish
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: deno publish --allow-slow-types
