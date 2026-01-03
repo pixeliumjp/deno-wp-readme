@@ -49,4 +49,4 @@ jobs:
 
       - name: Publish JSR
         if: github.event_name == 'push' && github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
-        run: deno publish --allow-slow-types
+        run: deno publish --allow-slow-types --allow-dirty
