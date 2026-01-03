@@ -2,14 +2,12 @@
 
 Convert a GitHub README.md into a WordPress plugin readme.txt
 
-> **Note**: This is a Deno/TypeScript port of the original
-> [wp-readme](https://github.com/fumikito/wp-readme) project.
+> **Note**: This is a Deno/TypeScript port of the original [wp-readme](https://github.com/fumikito/wp-readme) project.
 
 ## Concept
 
 Many WordPress plugin developers host their code on GitHub. But
-[WordPress' official repository](https://wordpress.org/plugins/) hosts plugin
-file in SVN repos.
+[WordPress' official repository](https://wordpress.org/plugins/) hosts plugin file in SVN repos.
 
 | Readme         | WordPress                                                 | GitHub                                                                    |
 | -------------- | --------------------------------------------------------- | ------------------------------------------------------------------------- |
@@ -18,9 +16,8 @@ file in SVN repos.
 
 They are almost same, but little bit different.
 
-This Deno/TypeScript script converts GitHub's `README.md` into a WordPress
-`readme.txt` file. This allows you to maintain a single source of documentation
-for both GitHub and WordPress.org, eliminating the need to manage two separate
+This Deno/TypeScript script converts GitHub's `README.md` into a WordPress `readme.txt` file. This allows you to
+maintain a single source of documentation for both GitHub and WordPress.org, eliminating the need to manage two separate
 files.
 
 ## Requirements
@@ -63,17 +60,12 @@ deno add jsr:@pixelium/wp-readme
 これにより、プロジェクトの`deno.json`に自動的にインポートが追加され、コード内で使用できます：
 
 ```typescript
-import {
-  wpReadmeFind,
-  wpReadmeReplace,
-  wpReadmeConvertString,
-  wpReadmeVisibility,
-} from "jsr:@pixelium/wp-readme";
+import { wpReadmeConvertString, wpReadmeFind, wpReadmeReplace, wpReadmeVisibility } from "jsr:@pixelium/wp-readme";
 
 // 使用例
 const readmePath = await wpReadmeFind(".");
 if (readmePath) {
-  await wpReadmeReplace(readmePath);
+	await wpReadmeReplace(readmePath);
 }
 ```
 
@@ -81,16 +73,16 @@ if (readmePath) {
 
 ```typescript
 import {
-  wpReadmeFind,
-  wpReadmeReplace,
-  wpReadmeConvertString,
-  wpReadmeVisibility,
+	wpReadmeConvertString,
+	wpReadmeFind,
+	wpReadmeReplace,
+	wpReadmeVisibility,
 } from "https://raw.githubusercontent.com/sato-jp/deno-wp-readme/master/wp-readme.ts";
 
 // 使用例
 const readmePath = await wpReadmeFind(".");
 if (readmePath) {
-  await wpReadmeReplace(readmePath);
+	await wpReadmeReplace(readmePath);
 }
 ```
 
@@ -100,27 +92,24 @@ if (readmePath) {
 
 ```json
 {
-  "imports": {
-    "@wp-readme": "https://raw.githubusercontent.com/sato-jp/deno-wp-readme/master/wp-readme.ts"
-  }
+	"imports": {
+		"@wp-readme": "https://raw.githubusercontent.com/sato-jp/deno-wp-readme/master/wp-readme.ts"
+	}
 }
 ```
 
 その後、コード内で：
 
 ```typescript
-import {
-  wpReadmeFind,
-  wpReadmeReplace,
-} from "@wp-readme";
+import { wpReadmeFind, wpReadmeReplace } from "@wp-readme";
 ```
 
 #### 方法4: 特定のバージョン/タグを指定
 
 ```typescript
 import {
-  wpReadmeFind,
-  wpReadmeReplace,
+	wpReadmeFind,
+	wpReadmeReplace,
 } from "https://raw.githubusercontent.com/sato-jp/deno-wp-readme/v2.0.0/wp-readme.ts";
 ```
 
@@ -130,23 +119,22 @@ You can use this in GitHub Actions workflows:
 
 ```yaml
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.6.0
-      - name: Generate readme.txt
-        run: deno run --allow-read --allow-write --allow-env wp-readme.ts
+    release:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: denoland/setup-deno@v2
+              with:
+                  deno-version: v2.6.0
+            - name: Generate readme.txt
+              run: deno run --allow-read --allow-write --allow-env wp-readme.ts
 ```
 
 ## Advanced Usage
 
 ### Control Visibility
 
-By surrounding sections with special HTML comments, you can control their
-visibility.
+By surrounding sections with special HTML comments, you can control their visibility.
 
 ```
 <!-- only:github/ -->
@@ -161,9 +149,8 @@ Be careful with comment format.
 </only:wp -->
 ```
 
-If you convert 1 repo to multiple delivery type(e.g. deliver the light version
-on WordPress.org and the pro version on your site), you can use environment
-variable `WP_README_ENV`.
+If you convert 1 repo to multiple delivery type(e.g. deliver the light version on WordPress.org and the pro version on
+your site), you can use environment variable `WP_README_ENV`.
 
 ```
 <!-- only:production>
@@ -183,8 +170,7 @@ deno run --allow-read --allow-write --allow-env wp-readme.ts
 
 ### Custom Directory
 
-You can specify a custom directory using the `WP_README_DIR` environment
-variable:
+You can specify a custom directory using the `WP_README_DIR` environment variable:
 
 ```bash
 export WP_README_DIR=/path/to/your/plugin
