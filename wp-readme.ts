@@ -2,7 +2,7 @@
  * Generate readme.txt from GitHub's README.md
  *
  * Deno/TypeScript port of wp-readme
- * @version 2.0.1
+ * @version 2.0.2
  * @see https://github.com/fumikito/wp-readme (original PHP version)
  */
 

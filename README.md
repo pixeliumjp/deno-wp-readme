@@ -4,21 +4,19 @@ Convert a GitHub README.md into a WordPress plugin readme.txt
 
 > **Note**: This is a Deno/TypeScript port of the original [wp-readme](https://github.com/fumikito/wp-readme) project.
 
-## Concept
+## What is this?
 
-Many WordPress plugin developers host their code on GitHub. But
-[WordPress' official repository](https://wordpress.org/plugins/) hosts plugin file in SVN repos.
+When developing WordPress plugins, you use `README.md` on GitHub, but WordPress.org's official repository requires `readme.txt`. This tool automatically converts GitHub's `README.md` into WordPress's `readme.txt` format.
 
-| Readme         | WordPress                                                 | GitHub                                                                    |
-| -------------- | --------------------------------------------------------- | ------------------------------------------------------------------------- |
-| File Extension | .txt                                                      | .md                                                                       |
-| Format         | [Markdown](https://daringfireball.net/projects/markdown/) | [GitHub Markdown](https://guides.github.com/features/mastering-markdown/) |
+### Differences
 
-They are almost same, but little bit different.
+| Item         | WordPress.org                                    | GitHub                                    |
+| ------------ | ------------------------------------------------ | ----------------------------------------- |
+| File Extension | `.txt`                                           | `.md`                                     |
+| Format       | WordPress-style Markdown                        | GitHub-style Markdown                     |
+| Header Format | `=== Title ===` (uses equals signs)              | `# Title` (uses hash)                     |
 
-This Deno/TypeScript script converts GitHub's `README.md` into a WordPress `readme.txt` file. This allows you to
-maintain a single source of documentation for both GitHub and WordPress.org, eliminating the need to manage two separate
-files.
+By using this tool, you can generate documentation for both GitHub and WordPress.org by **managing just one `README.md` file**.
 
 ## Requirements
 
@@ -26,96 +24,76 @@ files.
 
 ## Usage
 
-### Direct execution
+### Quick Start
+
+To convert `README.md` in the current directory to `readme.txt`, run the following command:
 
 ```bash
-deno run --allow-read --allow-write --allow-env wp-readme.ts
+deno run --allow-read --allow-write --allow-env jsr:@pixelium/wp-readme
 ```
 
-### Install as a command
+This command searches for `README.md` in the current directory and generates `readme.txt` in the same directory.
 
-```bash
-deno install --allow-read --allow-write --allow-env -n wp-readme wp-readme.ts
-wp-readme
-```
+### Using as a module
 
-### Remote execution
+You can import this module from other Deno projects and use it in your programs.
 
-```bash
-deno run --allow-read --allow-write --allow-env https://raw.githubusercontent.com/sato-jp/deno-wp-readme/master/wp-readme.ts
-```
+#### Method 1: Add with deno add (Recommended)
 
-### Import as a module
-
-他のDenoプロジェクトでこのモジュールをインポートして使用できます：
-
-#### 方法1: deno add で追加（推奨）
-
-JSR（JavaScript Registry）に公開されている場合、`deno add`コマンドで簡単に追加できます：
+To add it as a project dependency:
 
 ```bash
 deno add jsr:@pixelium/wp-readme
 ```
 
-これにより、プロジェクトの`deno.json`に自動的にインポートが追加され、コード内で使用できます：
-
-```typescript
-import { wpReadmeConvertString, wpReadmeFind, wpReadmeReplace, wpReadmeVisibility } from "jsr:@pixelium/wp-readme";
-
-// 使用例
-const readmePath = await wpReadmeFind(".");
-if (readmePath) {
-	await wpReadmeReplace(readmePath);
-}
-```
-
-#### 方法2: 直接URLでインポート
-
-```typescript
-import {
-	wpReadmeConvertString,
-	wpReadmeFind,
-	wpReadmeReplace,
-	wpReadmeVisibility,
-} from "https://raw.githubusercontent.com/sato-jp/deno-wp-readme/master/wp-readme.ts";
-
-// 使用例
-const readmePath = await wpReadmeFind(".");
-if (readmePath) {
-	await wpReadmeReplace(readmePath);
-}
-```
-
-#### 方法3: deno.jsonでインポートマップを設定
-
-プロジェクトの`deno.json`に以下を追加：
+This automatically adds the import to `deno.json`:
 
 ```json
 {
-	"imports": {
-		"@wp-readme": "https://raw.githubusercontent.com/sato-jp/deno-wp-readme/master/wp-readme.ts"
-	}
+  "imports": {
+    "@pixelium/wp-readme": "jsr:@pixelium/wp-readme@^2.0.0"
+  }
 }
 ```
 
-その後、コード内で：
-
-```typescript
-import { wpReadmeFind, wpReadmeReplace } from "@wp-readme";
-```
-
-#### 方法4: 特定のバージョン/タグを指定
+Use in your code:
 
 ```typescript
 import {
 	wpReadmeFind,
 	wpReadmeReplace,
-} from "https://raw.githubusercontent.com/sato-jp/deno-wp-readme/v2.0.0/wp-readme.ts";
+	wpReadmeConvertString,
+	wpReadmeVisibility,
+} from "@pixelium/wp-readme";
+
+// Find and convert README.md
+const readmePath = await wpReadmeFind(".");
+if (readmePath) {
+	await wpReadmeReplace(readmePath);
+	console.log("readme.txt has been generated!");
+}
 ```
 
-### GitHub Actions
+#### Method 2: Direct import
 
-You can use this in GitHub Actions workflows:
+To import directly without using `deno.json`:
+
+```typescript
+import {
+	wpReadmeFind,
+	wpReadmeReplace,
+} from "jsr:@pixelium/wp-readme";
+
+// Example usage
+const readmePath = await wpReadmeFind("./my-plugin");
+if (readmePath) {
+	await wpReadmeReplace(readmePath);
+}
+```
+
+### Using with GitHub Actions
+
+To automatically generate `readme.txt` in your CI/CD pipeline:
 
 ```yaml
 jobs:
@@ -127,90 +105,70 @@ jobs:
               with:
                   deno-version: v2.6.0
             - name: Generate readme.txt
-              run: deno run --allow-read --allow-write --allow-env wp-readme.ts
+              run: deno run --allow-read --allow-write --allow-env jsr:@pixelium/wp-readme
+            - name: Commit readme.txt
+              run: |
+                  git config user.name "github-actions"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add readme.txt
+                  git commit -m "Update readme.txt" || exit 0
+                  git push
 ```
 
 ## Advanced Usage
 
-### Control Visibility
+### Controlling Visibility (Display Different Content on GitHub and WordPress.org)
 
-By surrounding sections with special HTML comments, you can control their visibility.
+You can use HTML comments to display different content on GitHub and WordPress.org.
 
-```
+#### GitHub-only Section
+
+Visible in GitHub's `README.md` but removed from WordPress's `readme.txt`:
+
+```markdown
 <!-- only:github/ -->
-This section is visible only on github and will be removed from readme.txt.
+This section is visible only on GitHub.
 <!-- /only:github -->
 ```
 
-```
+#### WordPress-only Section
+
+Visible only in WordPress's `readme.txt` (hidden as a comment on GitHub):
+
+```markdown
 <!-- only:wp>
-This section is visible only on WordPress.org because it's commented out.
-Be careful with comment format.
+This section is visible only on WordPress.org.
 </only:wp -->
 ```
 
-If you convert 1 repo to multiple delivery type(e.g. deliver the light version on WordPress.org and the pro version on
-your site), you can use environment variable `WP_README_ENV`.
+#### Conditional Branching with Environment Variables
 
-```
+When distributing multiple versions from the same repository (e.g., free version on WordPress.org, pro version on your site):
+
+```markdown
 <!-- only:production>
 This section will be revealed only if the environment is 'production'.
 </only:production -->
+
 <!-- not:production/ -->
 This text should be removed if the environment is 'production'
 <!-- /not:production -->
 ```
 
-In command line, export variable and run this script.
+Set the environment variable and run:
 
 ```bash
 export WP_README_ENV=production
-deno run --allow-read --allow-write --allow-env wp-readme.ts
+deno run --allow-read --allow-write --allow-env jsr:@pixelium/wp-readme
 ```
 
-### Custom Directory
+### Specifying a Custom Directory
 
-You can specify a custom directory using the `WP_README_DIR` environment variable:
+You can specify the directory to search for `README.md` using the `WP_README_DIR` environment variable:
 
 ```bash
 export WP_README_DIR=/path/to/your/plugin
-deno run --allow-read --allow-write --allow-env wp-readme.ts
-```
-
-## Publishing to JSR
-
-このパッケージをJSR（JavaScript Registry）に公開することで、`deno add`コマンドで簡単に追加できるようになります。
-
-### 公開手順
-
-1. **JSRアカウントを作成**
-   - https://jsr.io にアクセス
-   - GitHubアカウントでログイン
-
-2. **スコープの作成**
-   - JSRでスコープ（この場合は`@pixelium`）を作成
-   - GitHub組織またはユーザー名と紐付け
-
-3. **公開前の確認**
-   ```bash
-   # 公開前のチェック（ドライラン）
-   deno publish --dry-run
-   ```
-
-4. **公開**
-   ```bash
-   # 実際にJSRに公開
-   deno publish
-   ```
-
-5. **バージョン管理**
-   - `deno.json`の`version`フィールドを更新してから公開
-   - タグを付けてリリースすることを推奨
-
-公開後、他のプロジェクトで以下のコマンドで追加できます：
-
-```bash
-deno add jsr:@pixelium/wp-readme
+deno run --allow-read --allow-write --allow-env jsr:@pixelium/wp-readme
 ```
 
 ## Testing
@@ -221,9 +179,15 @@ Run tests with Deno's built-in test runner:
 deno test --allow-read --allow-write --allow-env
 ```
 
+Or use the task:
+
+```bash
+deno task test
+```
+
 ## Contribution
 
-If you find bugs, please make issues. Any pull requests are welcomed.
+If you find bugs, please create an issue. Pull requests are also welcome.
 
 ## License
 
