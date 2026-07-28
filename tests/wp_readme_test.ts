@@ -78,6 +78,23 @@ Deno.test("wpReadmeConvertString - converts code blocks", () => {
 	assertEquals(result, "<pre>function test() {\n  return 'test';\n}</pre>");
 });
 
+Deno.test("wpReadmeConvertString - escapes HTML inside code blocks", () => {
+	const input = '```\n<div class="foo">It\'s a <strong>bug</strong>.</div>\n```';
+	const expected = '<pre>&lt;div class="foo"&gt;It\'s a &lt;strong&gt;bug&lt;/strong&gt;.&lt;/div&gt;</pre>';
+	assertEquals(wpReadmeConvertString(input), expected);
+});
+
+Deno.test("wpReadmeConvertString - handles h4 and deeper headers without crashing", () => {
+	const input = `#### Level 4
+##### Level 5`;
+	const result = wpReadmeConvertString(input);
+	assertEquals(
+		result,
+		` Level 4 
+ Level 5 `,
+	);
+});
+
 Deno.test("wpReadmeConvertString - full conversion test", async () => {
 	const testDir = join(Deno.cwd(), "tests", "document");
 	const readmePath = join(testDir, "README.md");

@@ -2,7 +2,7 @@
  * Generate readme.txt from GitHub's README.md
  *
  * Deno/TypeScript port of wp-readme
- * @version 2.0.5
+ * @version 2.0.6
  * @see https://github.com/fumikito/wp-readme (original PHP version)
  */
 
@@ -72,9 +72,10 @@ export async function wpReadmeReplace(targetFile: string): Promise<boolean> {
 	try {
 		const stat = await Deno.stat(newFile);
 		if (stat.isFile) {
-			// File exists, check if writable
+			// File exists, check if writable without modifying its contents.
 			try {
-				await Deno.writeTextFile(newFile, "");
+				const file = await Deno.open(newFile, { write: true });
+				file.close();
 			} catch {
 				throw new Error("readme.txt already exists and is not writable.");
 			}
@@ -113,16 +114,19 @@ export function wpReadmeConvertString(string: string): string {
 	// Replace headers.
 	string = string.replace(/^(#+)\s+(.*)$/gmu, (_match, hashes, text) => {
 		const length = hashes.length;
-		const sepLength = 3 - (length - 1);
+		const sepLength = Math.max(0, 3 - (length - 1));
 		const sep = "=".repeat(sepLength);
 		return `${sep} ${text} ${sep}`;
 	});
 
 	// Format code.
+	// Escape < and > so WordPress.org's readme renderer treats them as a
+	// code sample instead of real markup.
 	string = string.replace(
 		/```([^\n`]*?)\n(.*?)\n```/gus,
 		(_match, _lang, code) => {
-			return `<pre>${code}</pre>`;
+			const escaped = code.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+			return `<pre>${escaped}</pre>`;
 		},
 	);
 
